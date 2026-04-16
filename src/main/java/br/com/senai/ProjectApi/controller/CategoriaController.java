@@ -7,8 +7,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -63,5 +65,15 @@ public class CategoriaController {
     public void deletarCategoria(@PathVariable Long id){
         var categoria = repository.getReferenceById(id);
         categoria.excluirCategoria();
+    }
+
+    @GetMapping("/{id}")
+    public DadosDetalhamentoCategoria detalharCategoria(@PathVariable Long id){
+        Categoria categoria = repository.findByIdAndAtivoTrue(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Categoria não existe"
+        ));
+        return  new DadosDetalhamentoCategoria(categoria);
     }
 }
