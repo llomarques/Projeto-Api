@@ -1,6 +1,7 @@
 package br.com.senai.ProjectApi.cliente;
 
 
+import br.com.senai.ProjectApi.endereco.Endereco;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -22,6 +23,9 @@ public class Cliente {
     private String email;
     private String cpf;
     private String telefone;
+
+    @Embedded
+    private Endereco endereco;
     private boolean ativo;
 
     public Cliente (DadosCadastroCliente dados ){
@@ -29,8 +33,8 @@ public class Cliente {
       this.email =  dados.email();
       this.cpf = dados.cpf();
       this.telefone = dados.telefone();
-
       this.ativo = true;
+      this.endereco= new Endereco(dados.endereco());
     }
 
     public void atualizarInformacoes(DadosAtualizarCliente dados){
