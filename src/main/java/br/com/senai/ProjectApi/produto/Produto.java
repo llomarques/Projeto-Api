@@ -1,9 +1,7 @@
 package br.com.senai.ProjectApi.produto;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import br.com.senai.ProjectApi.categoria.Categoria;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,5 +22,24 @@ public class Produto {
     private BigDecimal preco;
     private String sku;
     private String descricao;
-    private int estoque;
+    private Long estoque;
+    private boolean ativo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id")
+    private Categoria categoria;
+
+    public Produto(DadosCadastroProduto dados, Categoria categoria){
+        this.nome = dados.nome();
+        this.preco = dados.preco();
+        this.sku = dados.sku();
+        this.descricao = dados.descricao();
+        this.estoque = dados.estoque();
+        this.categoria = categoria;
+        this.ativo = true;
+    }
+
+    public void excluirProduto(){
+        this.ativo = false;
+    }
 }
