@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
-    boolean existsBySku(String sku);
+
+    boolean existsBySkuAndAtivoTrue(String sku);
 
     Page<Produto> findAllByAtivoTrue(Pageable paginacao);
     Optional<Produto> findByIdAndAtivoTrue(Long id);

@@ -2,6 +2,7 @@ package br.com.senai.ProjectApi.produto;
 
 import br.com.senai.ProjectApi.categoria.Categoria;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Entity(name = "Produto")
+@Table(name ="produtos")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -41,5 +43,20 @@ public class Produto {
 
     public void excluirProduto(){
         this.ativo = false;
+    }
+
+    public void atualizarProduto(@Valid DadosAtualizarProduto dados, Categoria categoria) {
+        if(dados.nome() != null && !dados.nome().isBlank())
+            this.nome = dados.nome();
+        if(dados.preco() != null)
+            this.preco = dados.preco();
+        if(dados.sku() != null && !dados.sku().isBlank())
+            this.sku = dados.sku();
+        if(dados.descricao() != null && !dados.descricao().isBlank())
+            this.descricao = dados.descricao();
+        if(dados.estoque() != null)
+            this.estoque = dados.estoque();
+        if(categoria != null)
+            this.categoria = categoria;
     }
 }
