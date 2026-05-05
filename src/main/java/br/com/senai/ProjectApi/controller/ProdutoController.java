@@ -2,6 +2,7 @@ package br.com.senai.ProjectApi.controller;
 
 import br.com.senai.ProjectApi.categoria.Categoria;
 import br.com.senai.ProjectApi.categoria.CategoriaRepository;
+import br.com.senai.ProjectApi.exceptions.ErroResponse;
 import br.com.senai.ProjectApi.produto.*;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
@@ -158,9 +159,21 @@ public class ProdutoController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    @Tag(name = "Excluir Produto")
+    @Operation(summary = "Excluir produto")
+    @Tag(name = "Excluir Produto", description = "Exclui o produto por id, tornando o  ativo = false")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "204", description = "Produto excluido", content =   @Content),
+            @ApiResponse(responseCode = "404", description = "Produto não encontrado", content = @Content),
+
+    })
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity excluirProduto(@PathVariable Long id){
+    public ResponseEntity excluirProduto(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = DadosDetalhamentoProduto.class)
+                    )
+            )@PathVariable Long id){
         var produto = produtoRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado"));
         produto.excluirProduto();
@@ -173,16 +186,34 @@ public class ProdutoController {
     @Operation(summary = "Atualiza produto")
     @Tag(name = "Atualizar Produto", description = "Atualizar produto")
     @ApiResponses( value = {
-            @ApiResponse(responseCode = "200", description = "Produto atualizado",
+            @ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso",
                     content = {
                             @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = DadosAtualizarProduto.class))
+                                    schema = @Schema(implementation = DadosDetalhamentoProduto.class))
                     }),
-            @ApiResponse(responseCode = "409", description =" SKU deve ser unico", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Categoria não encontrada", content = @Content),
-            @ApiResponse(responseCode = "400", description = "Produto não encontrado", content = @Content)
-
-
+            @ApiResponse(responseCode = "409", description = "SKU já cadastrado", content = @Content),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Recurso não encontrado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErroResponse.class),
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Categoria inválida",
+                                            value = """
+                    {"codigo": "CATEGORIA_NAO_ENCONTRADA", "mensagem": "Categoria inválida"}
+                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Produto inválido",
+                                            value = """
+                    {"codigo": "PRODUTO_NAO_ENCONTRADO", "mensagem": "Produto inválido"}
+                    """
+                                    )
+                            }
+                    )
+            )
     })
     public ResponseEntity<DadosDetalhamentoProduto> atualizarProduto(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -190,11 +221,10 @@ public class ProdutoController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = DadosAtualizarProduto.class),
                             examples = @ExampleObject(
-                                    value = "{\t\"Id\": 1,\n" +
-                                            "\t\"nome\": \"Nome Produto\",\t\n" +
+                                    value ="{ \"nome\": \"Nome Produto\",\t\n" +
                                             "\t\"preco\": 21.00,\n" +
+                                            "\t\"descricao\": \"Descrição do produto\",\n" +
                                             "\t\"estoque\": 1,\n" +
-                                            "\t\"descricao\":\"descrição do produto\",\t\n"+
                                             "\t\"categoriaId\": 6}"
                             )
                     )
